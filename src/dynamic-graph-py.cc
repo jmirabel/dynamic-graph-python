@@ -23,6 +23,7 @@
 #include <dynamic-graph/signal-base.h>
 
 #include "exception.hh"
+#include "signal-wrapper.hh"
 
 namespace dynamicgraph {
   namespace python {
@@ -30,6 +31,7 @@ namespace dynamicgraph {
     // Declare functions defined in other source files
     namespace signalBase {
       extern PyObject* create(PyObject* self, PyObject* args);
+      extern PyObject* createSignalWrapper(PyObject* self, PyObject* args);
       extern PyObject* getTime(PyObject* self, PyObject* args);
       extern PyObject* setTime(PyObject* self, PyObject* args);
       extern PyObject* getName(PyObject* self, PyObject* args);
@@ -48,6 +50,7 @@ namespace dynamicgraph {
       extern PyObject* display(PyObject* self, PyObject* args);
       extern PyObject* display(PyObject* self, PyObject* args);
       extern PyObject* getName(PyObject* self, PyObject* args);
+      extern PyObject* getClassName(PyObject* self, PyObject* args);
       extern PyObject* hasSignal(PyObject* self, PyObject* args);
       extern PyObject* getSignal(PyObject* self, PyObject* args);
       extern PyObject* listSignals(PyObject* self, PyObject* args);
@@ -150,6 +153,8 @@ static PyMethodDef dynamicGraphMethods[] = {
   // Signals
   {"create_signal_base", dynamicgraph::python::signalBase::create, METH_VARARGS,
    "create a SignalBase C++ object"},
+  {"create_signal_wrapper", dynamicgraph::python::signalBase::createSignalWrapper, METH_VARARGS,
+   "create a SignalWrapper C++ object"},
   {"signal_base_get_time", dynamicgraph::python::signalBase::getTime,
    METH_VARARGS, "Get time of  a SignalBase"},
   {"signal_base_set_time", dynamicgraph::python::signalBase::setTime,
@@ -181,6 +186,8 @@ static PyMethodDef dynamicGraphMethods[] = {
    "print an Entity C++ object"},
   {"entity_get_name", dynamicgraph::python::entity::getName, METH_VARARGS,
    "get the name of an Entity"},
+  {"entity_get_class_name", dynamicgraph::python::entity::getClassName, METH_VARARGS,
+   "get the class name of an Entity"},
   {"entity_has_signal", dynamicgraph::python::entity::hasSignal, METH_VARARGS,
    "return True if the entity has a signal with the given name"},
   {"entity_get_signal", dynamicgraph::python::entity::getSignal, METH_VARARGS,
