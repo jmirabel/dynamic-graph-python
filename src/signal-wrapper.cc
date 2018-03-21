@@ -19,6 +19,9 @@
 #include <Python.h>
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command-bind.h>
+#include <dynamic-graph/value.h>
+
+#include "../src/convert-dg-to-py.hh"
 
 namespace dynamicgraph {
   namespace python {
@@ -27,11 +30,23 @@ namespace dynamicgraph {
       void convert (PyObject* o, int   & v) { v = (int)PyInt_AS_LONG (o); }
       void convert (PyObject* o, float & v) { v = (float)PyFloat_AS_DOUBLE (o); }
       void convert (PyObject* o, double& v) { v =        PyFloat_AS_DOUBLE (o); }
-      void convert (PyObject* o, Vector     & v)
+      void convert (PyObject* o, Vector& v)
       {
         v.resize(PyTuple_Size(o));
         for (int i = 0; i < v.size(); ++i)
           convert(PyTuple_GetItem(o,i), v[i]);
+      }
+      void convert (PyObject* o, Eigen::Matrix4d& v)
+      {
+        v =
+          convert::pythonToValue (o, command::Value::MATRIX4D)
+          .matrix4dValue();
+      }
+      void convert (PyObject* o, MatrixHomogeneous& v)
+      {
+        Eigen::Matrix4d vv;
+        convert (o, vv);
+        v = vv;
       }
     }
 
@@ -80,5 +95,7 @@ namespace dynamicgraph {
     template class SignalWrapper<float , int>;
     template class SignalWrapper<double, int>;
     template class SignalWrapper<Vector, int>;
+    template class SignalWrapper<Eigen::Matrix4d, int>;
+    template class SignalWrapper<MatrixHomogeneous, int>;
   } // namespace dynamicgraph
 } // namespace python

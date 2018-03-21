@@ -96,11 +96,15 @@ namespace dynamicgraph {
         return dynamic_cast<PythonSignalContainer*>(obj);
       }
 
-#define SIGNAL_WRAPPER_TYPE(IF, Enum, Type)                             \
-        IF (command::Value::typeName(command::Value::Enum)              \
-            .compare(type) == 0) {                                      \
+#define SIGNAL_WRAPPER_TYPE(IF, typeName, Type)                         \
+        IF (typeName.compare(type) == 0) {                              \
           obj = createSignalWrapperTpl<Type> (name, object, error);     \
         }
+
+#define SIGNAL_WRAPPER_VALUE_TYPE(IF, Enum, Type)                       \
+        SIGNAL_WRAPPER_TYPE (IF,                                        \
+            command::Value::typeName(command::Value::Enum),             \
+            Type)
 
       /**
 	 \brief Create an instance of SignalWrapper
@@ -120,15 +124,16 @@ namespace dynamicgraph {
 
         SignalBase<int>* obj = NULL;
         std::string error;
-        SIGNAL_WRAPPER_TYPE(     if, BOOL     ,bool)
-        // SIGNAL_WRAPPER_TYPE(else if, UNSIGNED ,bool)
-        SIGNAL_WRAPPER_TYPE(else if, INT      ,int   )
-        SIGNAL_WRAPPER_TYPE(else if, FLOAT    ,float )
-        SIGNAL_WRAPPER_TYPE(else if, DOUBLE   ,double)
-        // SIGNAL_WRAPPER_TYPE(else if, STRING   ,bool)
-        SIGNAL_WRAPPER_TYPE(else if, VECTOR   ,Vector)
-        // SIGNAL_WRAPPER_TYPE(else if, MATRIX   ,bool)
-        // SIGNAL_WRAPPER_TYPE(else if, MATRIX4D ,bool)
+        SIGNAL_WRAPPER_VALUE_TYPE(     if, BOOL     ,bool)
+        // SIGNAL_WRAPPER_VALUE_TYPE(else if, UNSIGNED ,bool)
+        SIGNAL_WRAPPER_VALUE_TYPE(else if, INT      ,int   )
+        SIGNAL_WRAPPER_VALUE_TYPE(else if, FLOAT    ,float )
+        SIGNAL_WRAPPER_VALUE_TYPE(else if, DOUBLE   ,double)
+        // SIGNAL_WRAPPER_VALUE_TYPE(else if, STRING   ,bool)
+        SIGNAL_WRAPPER_VALUE_TYPE(else if, VECTOR   ,Vector)
+        // SIGNAL_WRAPPER_VALUE_TYPE(else if, MATRIX   ,bool)
+        SIGNAL_WRAPPER_VALUE_TYPE(else if, MATRIX4D ,Eigen::Matrix4d)
+        SIGNAL_WRAPPER_TYPE(else if, std::string("matrixHomo"),MatrixHomogeneous)
         else {
           error = "Type not understood";
         }

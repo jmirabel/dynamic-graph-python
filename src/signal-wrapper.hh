@@ -22,6 +22,7 @@
 
 namespace dynamicgraph {
   namespace python {
+    typedef Eigen::Transform<double, 3, Eigen::Affine> MatrixHomogeneous;
     namespace signalWrapper {
       void convert (PyObject* o, int   & v);
       void convert (PyObject* o, bool  & v);
@@ -30,7 +31,8 @@ namespace dynamicgraph {
       // void convert (PyObject* o, std::string& v);
       void convert (PyObject* o, Vector     & v);
       // void convert (PyObject* o, Eigen::MatrixXd& v);
-      // void convert (PyObject* o, Eigen::Matrix4d& v);
+      void convert (PyObject* o, Eigen::Matrix4d& v);
+      void convert (PyObject* o, MatrixHomogeneous& v);
     }
 
     class PythonSignalContainer : public Entity
