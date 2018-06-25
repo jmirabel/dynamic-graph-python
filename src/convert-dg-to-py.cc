@@ -224,6 +224,9 @@ namespace dynamicgraph {
 	  }
 	  return Value(m4);
 	  break;
+	case (Value::VALUES) :
+          throw ExceptionPython(ExceptionPython::VALUE_PARSING,
+                                 "vector<Value>");
 	default:
 	  std::cerr << "Only int, double and string are supported."
 		    << std::endl;
@@ -265,6 +268,16 @@ namespace dynamicgraph {
 	    PyTuple_SET_ITEM(row, iCol, pyDouble);
 	  }
 	  PyTuple_SET_ITEM(tuple, iRow, row);
+	}
+	return tuple;
+      }
+
+      PyObject* valuesToPython(const std::vector<Value>& values)
+      {
+	PyObject* tuple = PyTuple_New(values.size());
+	for (std::size_t i = 0; i < values.size(); i++) {
+	  PyObject* v = valueToPython(values[i]);
+	  PyTuple_SET_ITEM(tuple, i, v);
 	}
 	return tuple;
       }
@@ -312,6 +325,11 @@ namespace dynamicgraph {
 	case (Value::MATRIX4D) :
 	  matrix4dValue = value.value();
 	  return matrix4dToPython(matrix4dValue);
+	case (Value::VALUES) :
+          {
+            std::vector<Value> valuesValue = value.value();
+            return valuesToPython(valuesValue);
+          }
 	default:
 	  return Py_BuildValue("");
 	}
