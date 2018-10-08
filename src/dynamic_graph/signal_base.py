@@ -8,6 +8,15 @@ import entity
 import re
 import collections
 
+# TODO we should not rely on this function to generate random entity names
+# Instead, the pool should provide a function that generates a name
+# with no name collision.
+def randomName (N=20,chars=None):
+    import random, string
+    if chars is None:
+        chars = string.ascii_uppercase + string.digits
+    return "__"+''.join(random.choice(chars) for _ in range(N))
+
 def stringToTuple (vector) :
     """
     Transform a string of format '[n](x_1,x_2,...,x_n)' into a tuple of numbers.
@@ -269,6 +278,48 @@ class SignalBase (object) :
         Print signal dependencies in a string
         """
         return(wrap.signal_base_display_dependencies(self.obj,iter))
+
+    def __add__ (a, b):
+        # Signal should be able to return the type in a proper way
+        from dynamic_graph.sot.core import Add_of_vector
+        import random, string
+        ent = Add_of_vector(randomName())
+        from dynamic_graph import plug
+        plug (a, ent.sin1)
+        plug (b, ent.sin2)
+        return OpSignalBase (ent.sout.obj, ent)
+
+    def __getitem__ (a, idx):
+        if isinstance (idx, int):
+            from dynamic_graph.sot.core import Component_of_vector
+            ent = Component_of_vector(randomName())
+            ent.setIndex (idx)
+        elif isinstance (idx, slice):
+            assert idx.step is None or idx.step==1, "does not support slicing with steps different from 1"
+            from dynamic_graph.sot.core import Selec_of_vector
+            ent = Selec_of_vector(randomName())
+            ent.selec (idx.start, idx.stop)
+        else:
+            raise TypeError ('Expects a int or a slice')
+        from dynamic_graph import plug
+        plug (a, ent.sin)
+        return OpSignalBase (ent.sout.obj, ent)
+
+    def concat (a, b):
+        from dynamic_graph.sot.core import Stack_of_vector
+        ent = Stack_of_vector(randomName())
+        from dynamic_graph import plug
+        plug (a, ent.sin1)
+        plug (b, ent.sin2)
+        return OpSignalBase (ent.sout.obj, ent)
+
+class OpSignalBase (SignalBase):
+    """ Internal class that is return by Python expression so that
+    `sig[10:12]`returns a signal (that can be used in another expression)
+    and the entity is not lost."""
+    def __init__(self, sig, ent) :
+        super(OpSignalBase, self).__init__ (obj=sig)
+        self.entity = ent
 
 class SignalWrapper (SignalBase):
     def __init__ (self, name, type, func):
